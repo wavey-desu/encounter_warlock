@@ -5,7 +5,7 @@ import {ReactNode} from "react";
 import {Inter, Montserrat, Roboto} from "next/font/google";
 import "./globals.css";
 // component imports
-import MainLayout from "@/app/components/layout/MainLayout";
+import MainLayout from "@/app/ui-components/layout/MainLayout";
 // state mgmt.
 import StoreProvider from "@/app/StoreProvider";
 

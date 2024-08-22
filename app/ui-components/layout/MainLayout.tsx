@@ -1,8 +1,8 @@
 // react imports
 import {ReactNode} from "react";
 // component imports
-import SideBar from "@/app/components/layout/SideBar";
-import AppBar from "@/app/components/layout/AppBar";
+import SideBar from "@/app/ui-components/layout/SideBar";
+import AppBar from "@/app/ui-components/layout/AppBar";
 
 const MainLayout = ({children}: {children: ReactNode}) => {
 	return (
