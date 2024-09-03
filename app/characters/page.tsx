@@ -2,19 +2,9 @@
 import AddCharBtn from './components/AddCharBtn';
 import AddCharDialog from "@/app/ui-components/AddCharDialog";
 import CharacterList from "./components/CharsList";
-interface User {
-	name: string,
-	email: string,
-	id: string
-}
-
 
 
 const CharsPage = async () => {
-	const res = await fetch('https://jsonplaceholder.typicode.com/users', {
-		cache: 'no-store'
-	})
-	const users: User[] = await res.json()
 
 	return (
 		<>

@@ -4,12 +4,14 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 
 export interface AppDefaultsState {
 	sidebarOpen: boolean;
-	addCharOpen: boolean
+	addCharOpen: boolean;
+	encounterPhase: number;
 }
 
 const initialState: AppDefaultsState = {
 	sidebarOpen: true,
-	addCharOpen: false
+	addCharOpen: false,
+	encounterPhase: 0
 }
 
 const appDefaultsSlice = createSlice({
@@ -21,9 +23,18 @@ const appDefaultsSlice = createSlice({
 		},
 		setAddCharOpen: (state, action: PayloadAction<boolean>) => {
 			state.addCharOpen = action.payload
-		}
+		},
+		phaseNext(state) {
+			state.encounterPhase++;
+		},
+		phasePrev(state) {
+			state.encounterPhase--;
+		},
+		phaseReset(state) {
+			state.encounterPhase = 0;
+		},
 	}
 })
 
-export const {setSideBarOpen, setAddCharOpen} = appDefaultsSlice.actions;
+export const {setSideBarOpen, setAddCharOpen, phaseNext, phasePrev, phaseReset} = appDefaultsSlice.actions;
 export default appDefaultsSlice.reducer

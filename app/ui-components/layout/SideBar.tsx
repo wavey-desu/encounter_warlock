@@ -8,7 +8,7 @@ const SideBar = () => {
 		<div className="col-span-1 h-full bg-base-200 text-white flex gap-2 flex-col p-2">
 			<Link href="/">
 				<button className={`sidebar-button w-full`}>
-					Encounter
+					Encounters
 				</button>
 			</Link>
 			<Link href="/characters">

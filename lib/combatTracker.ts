@@ -30,12 +30,59 @@ export class CombatTracker {
 	private characters: Character[] = [];
 	private currentEncounterId: string | null = null;
 
-	addCharacter(character: Character) {
-		this.characters.push(character);
-		localStorage.setItem('characters', JSON.stringify(this.characters));
+	// constructor() {
+	// 	// Load stored encounters and characters when the CombatTracker is instantiated
+	// 	this.encounters = this.getStoredEncounters();
+	// 	this.characters = this.getStoredCharacters();
+	// }
+
+	public loadLocalStorage() {
+		this.encounters = this.getStoredEncounters();
+		this.characters = this.getStoredCharacters();
 	}
 
-	addParticipant(characterId: string) {
+	addCharacter(character: Character) {
+		this.characters.push(character);
+		this.updateLocalStorage();
+	}
+
+	public startNewEncounter(name: string, participants: { characterId: string; initiative: number }[]) {
+		// Create a new encounter with the provided name
+		const newEncounter: Encounter = {
+			id: this.generateId(),
+			participants: [],
+			round: 1,
+			activeParticipantIndex: 0,
+			name
+		};
+		// Add the specified participants to the encounter with their initiatives
+		participants.forEach(({ characterId, initiative }) => {
+			const character = this.characters.find((c) => c.id === characterId);
+			if (character) {
+				const participant: Participant = {
+					...character,
+					maxHp: character.hp,
+					currentHp: character.hp,
+					initiative: initiative,
+					damageDealt: 0,
+					damageTaken: 0,
+					healingDone: 0,
+					conditions: []
+				};
+				newEncounter.participants.push(participant);
+			}
+		});
+
+		// Sort participants by initiative order
+		newEncounter.participants.sort((a, b) => b.initiative - a.initiative);
+
+		// Set the current encounter ID and push the new encounter to the list
+		this.currentEncounterId = newEncounter.id;
+		this.encounters.push(newEncounter);
+		this.updateLocalStorage();
+	}
+
+	addParticipant(characterId: string, maxHp?: number) {
 		const character = this.characters.find((c) => c.id === characterId);
 		if (!character) {
 			throw new Error('Character not found');
@@ -43,8 +90,8 @@ export class CombatTracker {
 
 		const participant: Participant = {
 			...character,
-			maxHp: character.hp,
-			currentHp: character.hp,
+			maxHp: maxHp || character.hp,
+			currentHp: maxHp || character.hp,
 			initiative: 0,
 			damageDealt: 0,
 			damageTaken: 0,
@@ -129,24 +176,10 @@ export class CombatTracker {
 		return currentEncounter.participants[currentEncounter.activeParticipantIndex] || null;
 	}
 
-
 	completeEncounter() {
 		const currentEncounter = this.getCurrentEncounter();
-		this.encounters.push(currentEncounter);
 		this.currentEncounterId = null;
 		this.updateLocalStorage();
-	}
-
-	public startNewEncounter(name: string) {
-		const newEncounter: Encounter = {
-			id: this.generateId(),
-			participants: [],
-			round: 1,
-			activeParticipantIndex: 0,
-			name
-		};
-		this.currentEncounterId = newEncounter.id;
-		this.encounters.push(newEncounter);
 	}
 
 	private updateInitiativeOrder() {

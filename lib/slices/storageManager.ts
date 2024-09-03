@@ -4,13 +4,15 @@ import { CombatTracker, Character, Participant, Encounter } from '../combatTrack
 interface CombatState {
 	combatTracker: CombatTracker;
 	currentEncounter: Encounter | null;
+	encounters: Encounter[];
 	characters: Character[];
 }
 
 const initialState: CombatState = {
 	combatTracker: new CombatTracker(),
 	currentEncounter: null,
-	characters: []
+	encounters: [],
+	characters: [],
 };
 
 const combatSlice = createSlice({
@@ -18,7 +20,9 @@ const combatSlice = createSlice({
 	initialState,
 	reducers: {
 		loadStoredData(state) {
+			state.combatTracker.loadLocalStorage()
 			state.characters = state.combatTracker.getStoredCharacters();
+			state.encounters = state.combatTracker.getStoredEncounters();
 			const currentEncounterId = state.combatTracker.getCurrentEncounterId();
 			state.currentEncounter = state.combatTracker.getStoredEncounters().find(
 				(encounter) => encounter.id === currentEncounterId
@@ -28,8 +32,8 @@ const combatSlice = createSlice({
 			state.combatTracker.addCharacter(action.payload);
 			state.characters = state.combatTracker.getStoredCharacters();
 		},
-		addParticipant(state, action: PayloadAction<{ characterId: string; maxHp: number }>) {
-			state.combatTracker.addParticipant(action.payload.characterId);
+		addParticipant(state, action: PayloadAction<{ characterId: string; maxHp?: number }>) {
+			state.combatTracker.addParticipant(action.payload.characterId, action.payload.maxHp);
 			const currentEncounterId = state.combatTracker.getCurrentEncounterId();
 			state.currentEncounter = state.combatTracker.getStoredEncounters().find(
 				(encounter) => encounter.id === currentEncounterId
@@ -42,8 +46,9 @@ const combatSlice = createSlice({
 				(encounter) => encounter.id === currentEncounterId
 			) || null;
 		},
-		startNewEncounter(state, action: PayloadAction<string>) {
-			state.combatTracker.startNewEncounter(action.payload);
+		startNewEncounter(state, action: PayloadAction<{ name: string; participants: { characterId: string; initiative: number }[] }>) {
+			// Use the new startNewEncounter method
+			state.combatTracker.startNewEncounter(action.payload.name, action.payload.participants);
 			const currentEncounterId = state.combatTracker.getCurrentEncounterId();
 			if (currentEncounterId) {
 				state.currentEncounter = state.combatTracker.getStoredEncounters().find(
@@ -72,6 +77,13 @@ const combatSlice = createSlice({
 				(encounter) => encounter.id === currentEncounterId
 			) || null;
 		},
+		nextTurn(state) {
+			state.combatTracker.nextTurn();
+			const currentEncounterId = state.combatTracker.getCurrentEncounterId();
+			state.currentEncounter = state.combatTracker.getStoredEncounters().find(
+				(encounter) => encounter.id === currentEncounterId
+			) || null;
+		},
 		completeEncounter(state) {
 			state.combatTracker.completeEncounter();
 			state.currentEncounter = null;
@@ -87,7 +99,9 @@ export const {
 	dealDamage,
 	healDamage,
 	completeEncounter,
-	startEncounter
+	startEncounter,
+	startNewEncounter,
+	nextTurn
 } = combatSlice.actions;
 
 export default combatSlice.reducer;
